@@ -65,16 +65,18 @@ struct IsArr<float *>
     static constexpr bool value = true;
 };
 
-template <typename T>
-float *_wraps_ag(T inp)
+float *_wraps_ag(float* inp)
 {
+    printf("default\n");
     return inp;
 }
 
-template <>
-float * _wraps_ag(AtomGroupMock inp)
+float * _wraps_ag(AtomGroupMock& inp)
 {
-    return inp.coords.data();
+    printf("specialization\n");
+    printf("conf pointer internal  %p\n", (void*)inp.coords.data());
+     float* pointer =  inp.coords.data();
+     return pointer;
 }
 
 void _calc_distance_array(coordinate *ref, uint64_t numref, coordinate *conf,
@@ -97,13 +99,15 @@ void _calc_distance_array(coordinate *ref, uint64_t numref, coordinate *conf,
     }
 }
 
-template <typename T, typename U>
+template <typename T, typename  U>
 void DistanceArray(T ref, uint64_t numref, U conf, uint64_t numconf, double *distances)
 {
 
-    auto ref_ = _wraps_ag<T>(ref);
-    auto conf_ = _wraps_ag<U>(conf);
+    printf("conf pointer %p \n", (void*)conf.coords.data());
 
+    auto ref_ = _wraps_ag(ref);
+    auto conf_ = _wraps_ag(conf); 
+    
     _calc_distance_array((coordinate *)ref_, numref, (coordinate *)conf_, numconf, distances);
 }
 
@@ -144,7 +148,7 @@ int main()
 
     // wrapped version, float arguments
 
-    DistanceArray(coords1, N, coords2, N, result2);
+    //DistanceArray(coords1, N, coords2, N, result2);
 
     // wrapped version mixed args
     DistanceArray(coords1, N, ag_mock1, N, result3);
