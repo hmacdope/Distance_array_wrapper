@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <string>
 #include <vector>
+#include <tuple>
 
 // from mda
 typedef float coordinate[3];
@@ -28,7 +29,7 @@ class AtomGroupMock
 {
 public:
     int N;
-    std::vector<float> ix;
+    std::vector<int> ix;
     std::vector<float> coords;
 
     AtomGroupMock(int N_)
@@ -46,39 +47,75 @@ public:
 };
 
 // wrapper for plain float *
-float *_wraps_ag(float* inp)
+template<typename T>
+T *_wraps_ag(T* inp)
 {
     return inp;
 }
 
 // wrapper for AtomGroupMock, MUST BE PASSED BY REF, otherwise new one constructed and
 // ref invalid upon exit
-float * _wraps_ag(AtomGroupMock& inp)
+auto _wraps_ag(AtomGroupMock& inp)
 {
      float* pointer =  inp.coords.data();
      return pointer;
 }
 
 // directly from MDA
-void _calc_distance_array(coordinate *ref, uint64_t numref, coordinate *conf,
+void _calc_distance_array(float *ref, uint64_t numref, float *conf,
                           uint64_t numconf, double *distances)
 {
     uint64_t i, j;
     double dx[3];
     double rsq;
 
+    // avoid dealing with coordinate in type signature
+    // this should be a reinterpret cast so cheap 
+    coordinate* conf_ = (coordinate*) conf;
+    coordinate* ref_ = (coordinate*) ref;
+
+
     for (i = 0; i < numref; i++)
     {
         for (j = 0; j < numconf; j++)
         {
-            dx[0] = conf[j][0] - ref[i][0];
-            dx[1] = conf[j][1] - ref[i][1];
-            dx[2] = conf[j][2] - ref[i][2];
+            dx[0] = conf_[j][0] - ref_[i][0];
+            dx[1] = conf_[j][1] - ref_[i][1];
+            dx[2] = conf_[j][2] - ref_[i][2];
             rsq = (dx[0] * dx[0]) + (dx[1] * dx[1]) + (dx[2] * dx[2]);
             *(distances + i * numconf + j) = sqrt(rsq);
         }
     }
 }
+
+
+
+// // overload for IDX.
+// void _calc_distance_array(std::tuple<float*, int*> ref, uint64_t numref, std::tuple<float*, int*> conf,
+//                           uint64_t numconf, double *distances)
+// {
+//     uint64_t i, j;
+//     double dx[3];
+//     double rsq;
+
+//     // avoid dealing with coordinate in type signature
+//     // this should be a reinterpret cast so cheap 
+//     coordinate* conf_ = (coordinate*) conf;
+//     coordinate* ref_ = (coordinate*) ref;
+
+
+//     for (i = 0; i < numref; i++)
+//     {
+//         for (j = 0; j < numconf; j++)
+//         {
+//             dx[0] = conf_[j][0] - ref_[i][0];
+//             dx[1] = conf_[j][1] - ref_[i][1];
+//             dx[2] = conf_[j][2] - ref_[i][2];
+//             rsq = (dx[0] * dx[0]) + (dx[1] * dx[1]) + (dx[2] * dx[2]);
+//             *(distances + i * numconf + j) = sqrt(rsq);
+//         }
+//     }
+// }
 
 template <typename T, typename  U>
 void DistanceArray(T ref, uint64_t numref, U conf, uint64_t numconf, double *distances)
@@ -86,8 +123,8 @@ void DistanceArray(T ref, uint64_t numref, U conf, uint64_t numconf, double *dis
 
     auto ref_ = _wraps_ag(ref); // float* -> float*
     auto conf_ = _wraps_ag(conf); // AtomGroupMock -> AtomGroupMock.coords.data (float*)
-    
-    _calc_distance_array((coordinate *)ref_, numref, (coordinate *)conf_, numconf, distances);
+
+    _calc_distance_array(ref_, numref, conf_, numconf, distances);
 }
 
 int main()
@@ -126,7 +163,7 @@ int main()
     }
 
     // raw MDA style
-    _calc_distance_array((coordinate *)coords1, N, (coordinate *)coords2, N, result1);
+    _calc_distance_array(coords1, N, coords2, N, result1);
 
     // wrapped version, float arguments
 
