@@ -4,8 +4,10 @@
 #include <string>
 #include <vector>
 
+// from mda
 typedef float coordinate[3];
 
+// helper
 template <typename T>
 void print_square_mat(T *buffer, int buf_len, std::string tag)
 {
@@ -21,6 +23,7 @@ void print_square_mat(T *buffer, int buf_len, std::string tag)
     printf("\n");
 }
 
+// mocks AtomGroup
 class AtomGroupMock
 {
 public:
@@ -30,7 +33,6 @@ public:
 
     AtomGroupMock(int N_)
     {
-        printf("constructed\n");
         N = N_;
         for (int i = 0; i < N; i++)
         {
@@ -43,21 +45,21 @@ public:
     }
 };
 
-
+// wrapper for plain float *
 float *_wraps_ag(float* inp)
 {
-    printf("default\n");
     return inp;
 }
 
+// wrapper for AtomGroupMock, MUST BE PASSED BY REF, otherwise new one constructed and
+// ref invalid upon exit
 float * _wraps_ag(AtomGroupMock& inp)
 {
-    printf("specialization\n");
-    printf(" pointer internal  %p\n", (void*)inp.coords.data());
      float* pointer =  inp.coords.data();
      return pointer;
 }
 
+// directly from MDA
 void _calc_distance_array(coordinate *ref, uint64_t numref, coordinate *conf,
                           uint64_t numconf, double *distances)
 {
@@ -82,14 +84,15 @@ template <typename T, typename  U>
 void DistanceArray(T ref, uint64_t numref, U conf, uint64_t numconf, double *distances)
 {
 
-    auto ref_ = _wraps_ag(ref);
-    auto conf_ = _wraps_ag(conf); 
+    auto ref_ = _wraps_ag(ref); // float* -> float*
+    auto conf_ = _wraps_ag(conf); // AtomGroupMock -> AtomGroupMock.coords.data (float*)
     
     _calc_distance_array((coordinate *)ref_, numref, (coordinate *)conf_, numconf, distances);
 }
 
 int main()
 {
+    // setup 
     constexpr int N = 10;
     constexpr bool debug = false;
     constexpr bool print_result = true;
@@ -102,6 +105,7 @@ int main()
     double result3[N * N] = {0};
     double result4[N * N] = {0};
 
+    // classes that mock atomgroup
     auto ag_mock1 = AtomGroupMock(N);
     auto ag_mock2 = AtomGroupMock(N);
 
