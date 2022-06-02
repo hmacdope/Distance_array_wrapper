@@ -43,27 +43,6 @@ public:
     }
 };
 
-template <typename T>
-struct IsAg
-{
-    static constexpr bool value = false;
-};
-template <>
-struct IsAg<AtomGroupMock>
-{
-    static constexpr bool value = true;
-};
-
-template <typename T>
-struct IsArr
-{
-    static constexpr bool value = false;
-};
-template <>
-struct IsArr<float *>
-{
-    static constexpr bool value = true;
-};
 
 float *_wraps_ag(float* inp)
 {
@@ -74,7 +53,7 @@ float *_wraps_ag(float* inp)
 float * _wraps_ag(AtomGroupMock& inp)
 {
     printf("specialization\n");
-    printf("conf pointer internal  %p\n", (void*)inp.coords.data());
+    printf(" pointer internal  %p\n", (void*)inp.coords.data());
      float* pointer =  inp.coords.data();
      return pointer;
 }
@@ -103,8 +82,6 @@ template <typename T, typename  U>
 void DistanceArray(T ref, uint64_t numref, U conf, uint64_t numconf, double *distances)
 {
 
-    printf("conf pointer %p \n", (void*)conf.coords.data());
-
     auto ref_ = _wraps_ag(ref);
     auto conf_ = _wraps_ag(conf); 
     
@@ -123,6 +100,7 @@ int main()
     double result1[N * N] = {0};
     double result2[N * N] = {0};
     double result3[N * N] = {0};
+    double result4[N * N] = {0};
 
     auto ag_mock1 = AtomGroupMock(N);
     auto ag_mock2 = AtomGroupMock(N);
@@ -148,15 +126,20 @@ int main()
 
     // wrapped version, float arguments
 
-    //DistanceArray(coords1, N, coords2, N, result2);
+    DistanceArray(coords1, N, coords2, N, result2);
 
     // wrapped version mixed args
     DistanceArray(coords1, N, ag_mock1, N, result3);
+
+
+    // wrapped version two Atomgroups
+    DistanceArray(ag_mock1, N, ag_mock2, N, result4);
 
     if (print_result)
     {
         print_square_mat(result1, N, "raw mda");
         print_square_mat(result2, N, "wrapped float args");
-        print_square_mat(result3, N, "mixed_args");
+        print_square_mat(result3, N, "wrapped mixed_args");
+        print_square_mat(result4, N, "wrapped AG args");
     }
 }
