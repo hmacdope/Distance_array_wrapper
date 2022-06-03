@@ -58,7 +58,7 @@ public:
         if (i < N)
         {
             i += 1;
-            float *ptr = coords.data() + 3 * (i - 1);
+            float *ptr = coords.data() + 3 * (ix[i - 1]);
             return ptr;
         }
         else
