@@ -3,19 +3,20 @@
 #include <cstdio>
 #include <string>
 #include <vector>
-#include <tuple>
+#include <iostream>
+#include <typeinfo>
 
 // from mda
 typedef float coordinate[3];
 
 // helper
 template <typename T>
-void print_square_mat(T *buffer, int buf_len, std::string tag)
+void print_square_mat(T *buffer, uint64_t buf_len, std::string tag)
 {
     printf(" %s \n", tag.c_str());
-    for (int i = 0; i < buf_len; i++)
+    for (uint64_t i = 0; i < buf_len; i++)
     {
-        for (int j = 0; j < buf_len; j++)
+        for (uint64_t j = 0; j < buf_len; j++)
         {
             printf(" %f ", buffer[buf_len * i + j]);
         }
@@ -28,18 +29,20 @@ void print_square_mat(T *buffer, int buf_len, std::string tag)
 class AGWrapper
 {
 public:
-    int N;
-    std::vector<int> ix;
+    uint64_t N;
+    std::vector<uint64_t> ix;
     std::vector<float> coords;
-    int i = 0;
+    uint64_t i = 0;
 
-    AGWrapper(int N) : N(N)
+    AGWrapper(uint64_t N) : N(N)
     {
-        for (int i = 0; i < N; i++)
+        ix.reserve(N);
+        coords.reserve(3 * N);
+        for (uint64_t i = 0; i < N; i++)
         {
             ix.push_back(static_cast<float>(i));
         }
-        for (int i = 0; i < 3 * N; i++)
+        for (uint64_t i = 0; i < 3 * N; i++)
         {
             coords.push_back(static_cast<float>(i));
         }
@@ -47,7 +50,7 @@ public:
 
     float *next()
     {
-        if (i  < N)
+        if (i < N)
         {
             i += 1;
             float *ptr = coords.data() + 3 * (i - 1);
@@ -70,13 +73,14 @@ class FloatWrapper
 {
 
 public:
-    int N;
+    uint64_t N;
     std::vector<float> coords;
-    int i = 0;
+    uint64_t i = 0;
 
-    FloatWrapper(int N) : N(N)
+    FloatWrapper(uint64_t N) : N(N)
     {
-        for (int i = 0; i < 3 * N; i++)
+        coords.reserve(3 * N);
+        for (uint64_t i = 0; i < 3 * N; i++)
         {
             coords.push_back(static_cast<float>(i));
         }
@@ -84,7 +88,7 @@ public:
 
     float *next()
     {
-        if (i  < N)
+        if (i < N)
         {
             i += 1;
             float *ptr = coords.data() + 3 * (i - 1);
@@ -102,31 +106,6 @@ public:
         i = 0;
     }
 };
-
-// wrapper for plain float *
-template <typename T>
-T *iter_coords(T *inp)
-{
-    inp += 3;
-    return inp -3;
-}
-
-// wrapper for AtomGroupMock, MUST BE PASSED BY REF, otherwise new one constructed and
-// ref invalid upon exit
-auto iter_coords(AGWrapper &inp)
-{
-    float *pointer = inp.next();
-    return pointer;
-}
-
-// wrapper for FloatWrapper, MUST BE PASSED BY REF, otherwise new one constructed and
-// ref invalid upon exit
-auto iter_coords(FloatWrapper &inp)
-{
-    float *pointer = inp.next();
-    return pointer;
-}
-
 
 // directly from MDA
 void _calc_distance_array(float *ref, uint64_t numref, float *conf,
@@ -155,27 +134,27 @@ void _calc_distance_array(float *ref, uint64_t numref, float *conf,
 }
 
 template <typename T, typename U>
-void DistanceArray(T ref, uint64_t numref, U conf, uint64_t numconf, double *distances)
+void DistanceArray(T ref, U conf, double *distances)
 {
 
     uint64_t i, j;
     double dx[3];
     double rsq;
+    float *ref_;
+    float *conf_;
 
-
-    for (i = 0; i < numref; i++)
+    for (i = 0; i < ref.N; i++)
     {
-        auto ref__ = iter_coords(ref);
-
-        for (j = 0; j < numconf; j++)
+        ref_ = ref.next();
+        for (j = 0; j < conf.N; j++)
         {
-            auto conf__ = iter_coords(conf);
+            conf_ = conf.next();
 
-            dx[0] = conf__[0] - ref__[0];
-            dx[1] = conf__[1] - ref__[1];
-            dx[2] = conf__[2] - ref__[2];
+            dx[0] = conf_[0] - ref_[0];
+            dx[1] = conf_[1] - ref_[1];
+            dx[2] = conf_[2] - ref_[2];
             rsq = (dx[0] * dx[0]) + (dx[1] * dx[1]) + (dx[2] * dx[2]);
-            *(distances + i * numconf + j) = sqrt(rsq);
+            *(distances + i * conf.N + j) = sqrt(rsq);
         }
     }
 }
@@ -183,9 +162,9 @@ void DistanceArray(T ref, uint64_t numref, U conf, uint64_t numconf, double *dis
 int main()
 {
     // setup
-    constexpr int N = 10;
+    constexpr uint64_t N = 10000;
     constexpr bool debug = false;
-    constexpr bool print_result = true;
+    constexpr bool print_result = false;
 
     float coords1[3 * N];
     float coords2[3 * N];
@@ -202,7 +181,7 @@ int main()
     auto float_mock1 = FloatWrapper(N);
     auto float_mock2 = FloatWrapper(N);
 
-    for (int i = 0; i < 3 * N; i++)
+    for (uint64_t i = 0; i < 3 * N; i++)
     {
         coords1[i] = static_cast<float>(i);
         coords2[i] = static_cast<float>(i);
@@ -210,7 +189,7 @@ int main()
 
     if (debug)
     {
-        for (int i = 0; i < 3 * N; i++)
+        for (uint64_t i = 0; i < 3 * N; i++)
         {
             printf(" %f \n", coords1[i]);
             printf(" %f \n", coords2[i]);
@@ -221,17 +200,14 @@ int main()
     // raw MDA style
     _calc_distance_array(coords1, N, coords2, N, result1);
 
-    // wrapped version, float* arguments
-    DistanceArray(float_mock1, N, float_mock2, N, result2);
-
     // wrapped version, two FloatWrapper arguments
-    DistanceArray(float_mock1, N, float_mock2, N, result2);
+    DistanceArray(float_mock1, float_mock2, result2);
 
-    //wrapped version mixed args
-    DistanceArray(float_mock1, N, ag_mock1, N, result3);
+    // wrapped version mixed args
+    DistanceArray(float_mock1, ag_mock1, result3);
 
     // wrapped version two AGwrapper arguments
-    DistanceArray(ag_mock1, N, ag_mock2, N, result4);
+    DistanceArray(ag_mock1, ag_mock2, result4);
 
     if (print_result)
     {
