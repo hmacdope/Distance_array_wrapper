@@ -5,7 +5,7 @@ class Distance : public benchmark::Fixture
 {
 public:
     // setup
-    constexpr static uint64_t N = 1000;
+    constexpr static uint64_t N = 20000;
 
     float coords1[3 * N];
     float coords2[3 * N];
@@ -15,6 +15,8 @@ public:
     // classes that mock atomgroup
     AGWrapper ag_mock1 = AGWrapper(N);
     AGWrapper ag_mock2 = AGWrapper(N);
+    AGWrapper ag_mock_non_contig1 = AGWrapper(N, false);
+    AGWrapper ag_mock_non_contig2 = AGWrapper(N, false);
 
     FloatWrapper float_mock1 = FloatWrapper(N);
     FloatWrapper float_mock2 = FloatWrapper(N);
@@ -57,6 +59,17 @@ public:
             benchmark::Counter::kIsRate | benchmark::Counter::kInvert);
     }
 
+    void BM_DistanceArrayAgNonContig(benchmark::State &state)
+    {
+        for (auto _ : state)
+        {
+            DistanceArray(ag_mock_non_contig1, ag_mock_non_contig2, result);
+        }
+        state.SetItemsProcessed(N * N * state.iterations());
+        state.counters["Per Result"] = benchmark::Counter(
+            N * state.iterations(),
+            benchmark::Counter::kIsRate | benchmark::Counter::kInvert);
+    }
 
     void BM_DistanceArrayFloatWrap(benchmark::State &state)
     {
@@ -70,6 +83,17 @@ public:
             benchmark::Counter::kIsRate | benchmark::Counter::kInvert);
     }
 
+    void BM_DistanceArrayMixed(benchmark::State &state)
+    {
+        for (auto _ : state)
+        {
+            DistanceArray(float_mock1, ag_mock1, result);
+        }
+        state.SetItemsProcessed(N * N * state.iterations());
+        state.counters["Per Result"] = benchmark::Counter(
+            N * state.iterations(),
+            benchmark::Counter::kIsRate | benchmark::Counter::kInvert);
+    }
 };
 
 BENCHMARK_F(Distance, distance_array)
@@ -78,18 +102,28 @@ BENCHMARK_F(Distance, distance_array)
     BM_calc_distance_array(state);
 }
 
-
 BENCHMARK_F(Distance, DistanceArrayAg)
 (benchmark::State &state)
 {
     BM_DistanceArrayAg(state);
 }
 
+BENCHMARK_F(Distance, DistanceArrayAgNonContig)
+(benchmark::State &state)
+{
+    BM_DistanceArrayAgNonContig(state);
+}
 
 BENCHMARK_F(Distance, DistanceArrayFloatWrap)
 (benchmark::State &state)
 {
     BM_DistanceArrayFloatWrap(state);
+}
+
+BENCHMARK_F(Distance, DistanceArrayMixed)
+(benchmark::State &state)
+{
+    BM_DistanceArrayMixed(state);
 }
 
 BENCHMARK_MAIN();

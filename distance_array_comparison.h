@@ -5,6 +5,7 @@
 #include <vector>
 #include <iostream>
 #include <typeinfo>
+#include <algorithm>
 
 // from mda
 typedef float coordinate[3];
@@ -34,13 +35,17 @@ public:
     std::vector<float> coords;
     uint64_t i = 0;
 
-    AGWrapper(uint64_t N) : N(N)
+    AGWrapper(uint64_t N, bool contig_idx = true) : N(N)
     {
         ix.reserve(N);
         coords.reserve(3 * N);
         for (uint64_t i = 0; i < N; i++)
         {
             ix.push_back(static_cast<float>(i));
+        }
+        if (!contig_idx)
+        {
+            std::random_shuffle(ix.begin(), ix.end());
         }
         for (uint64_t i = 0; i < 3 * N; i++)
         {
