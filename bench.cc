@@ -5,7 +5,7 @@ class Distance : public benchmark::Fixture
 {
 public:
     // setup
-    constexpr static uint64_t N = 20000;
+    constexpr static uint64_t N = 10000;
 
     float coords1[3 * N];
     float coords2[3 * N];
