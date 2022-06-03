@@ -25,7 +25,7 @@ void print_square_mat(T *buffer, int buf_len, std::string tag)
 }
 
 // mocks AtomGroup
-class AtomGroupMock
+class AGWrapper
 {
 public:
     int N;
@@ -33,7 +33,7 @@ public:
     std::vector<float> coords;
     int i = 0;
 
-    AtomGroupMock(int N) : N(N)
+    AGWrapper(int N) : N(N)
     {
         for (int i = 0; i < N; i++)
         {
@@ -108,12 +108,12 @@ template <typename T>
 T *iter_coords(T *inp)
 {
     inp += 3;
-    return inp + 3;
+    return inp -3;
 }
 
 // wrapper for AtomGroupMock, MUST BE PASSED BY REF, otherwise new one constructed and
 // ref invalid upon exit
-auto iter_coords(AtomGroupMock &inp)
+auto iter_coords(AGWrapper &inp)
 {
     float *pointer = inp.next();
     return pointer;
@@ -196,8 +196,8 @@ int main()
     double result4[N * N] = {0};
 
     // classes that mock atomgroup
-    auto ag_mock1 = AtomGroupMock(N);
-    auto ag_mock2 = AtomGroupMock(N);
+    auto ag_mock1 = AGWrapper(N);
+    auto ag_mock2 = AGWrapper(N);
 
     auto float_mock1 = FloatWrapper(N);
     auto float_mock2 = FloatWrapper(N);
@@ -221,14 +221,16 @@ int main()
     // raw MDA style
     _calc_distance_array(coords1, N, coords2, N, result1);
 
-    // wrapped version, float arguments
+    // wrapped version, float* arguments
+    DistanceArray(float_mock1, N, float_mock2, N, result2);
 
-    // DistanceArray(coords1, N, coords2, N, result2);
+    // wrapped version, two FloatWrapper arguments
+    DistanceArray(float_mock1, N, float_mock2, N, result2);
 
-    // //wrapped version mixed args
-    // DistanceArray(coords1, N, ag_mock1, N, result3);
+    //wrapped version mixed args
+    DistanceArray(float_mock1, N, ag_mock1, N, result3);
 
-    // wrapped version two Atomgroups
+    // wrapped version two AGwrapper arguments
     DistanceArray(ag_mock1, N, ag_mock2, N, result4);
 
     if (print_result)
