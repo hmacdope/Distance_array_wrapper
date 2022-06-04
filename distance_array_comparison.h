@@ -34,6 +34,7 @@ public:
     std::vector<uint64_t> ix;
     std::vector<float> coords;
     uint64_t i = 0;
+    float *ptr;
 
     AGWrapper(uint64_t N, bool contig_idx = true) : N(N)
     {
@@ -51,26 +52,21 @@ public:
         {
             coords.push_back(static_cast<float>(i));
         }
+        ptr = coords.data();
     }
 
     float *next()
     {
-        if (i < N)
         {
             i += 1;
-            float *ptr = coords.data() + 3 * (ix[i - 1]);
+            ptr = coords.data() + 3 * (ix[i - 1]);
             return ptr;
         }
-        else
-        {
-            reset_iteration();
-            return next();
-        }
     }
-
     void inline reset_iteration()
     {
         i = 0;
+        ptr = coords.data();
     }
 };
 
@@ -81,6 +77,7 @@ public:
     uint64_t N;
     std::vector<float> coords;
     uint64_t i = 0;
+    float *ptr;
 
     FloatWrapper(uint64_t N) : N(N)
     {
@@ -89,26 +86,18 @@ public:
         {
             coords.push_back(static_cast<float>(i));
         }
+        ptr = coords.data();
     }
 
     float *next()
     {
-        if (i < N)
-        {
-            i += 1;
-            float *ptr = coords.data() + 3 * (i - 1);
-            return ptr;
-        }
-        else
-        {
-            reset_iteration();
-            return next();
-        }
+        ptr += 3;
+        return ptr -3;
     }
 
     void inline reset_iteration()
     {
-        i = 0;
+        ptr = coords.data();
     }
 };
 
@@ -161,5 +150,6 @@ void DistanceArray(T ref, U conf, double *distances)
             rsq = (dx[0] * dx[0]) + (dx[1] * dx[1]) + (dx[2] * dx[2]);
             *(distances + i * conf.N + j) = sqrt(rsq);
         }
+        conf.reset_iteration();
     }
 }

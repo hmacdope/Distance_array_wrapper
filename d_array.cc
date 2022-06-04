@@ -4,9 +4,9 @@ int main()
 {
 
     // setup
-    constexpr uint64_t N = 1000;
+    constexpr uint64_t N = 10;
     constexpr bool debug = false;
-    constexpr bool print_result = false;
+    constexpr bool print_result = true;
 
     float coords1[3 * N];
     float coords2[3 * N];
