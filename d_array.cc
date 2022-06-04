@@ -65,4 +65,13 @@ int main()
     {
         print_square_mat(result, N, "wrapped Ag args");
     }
+
+
+    // wrapped version two AGwrapper arguments
+    DistanceArrayPreloadAG(ag_mock1, ag_mock2, result);
+    if (print_result)
+
+    {
+        print_square_mat(result, N, "preload Ag args");
+    }
 }

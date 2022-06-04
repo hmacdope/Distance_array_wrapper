@@ -94,6 +94,18 @@ public:
             N * state.iterations(),
             benchmark::Counter::kIsRate | benchmark::Counter::kInvert);
     }
+
+    void BM_DistanceArrayAgPreload(benchmark::State &state)
+    {
+        for (auto _ : state)
+        {
+            DistanceArrayPreloadAG(ag_mock1, ag_mock2, result);
+        }
+        state.SetItemsProcessed(N * N * state.iterations());
+        state.counters["Per Result"] = benchmark::Counter(
+            N * state.iterations(),
+            benchmark::Counter::kIsRate | benchmark::Counter::kInvert);
+    }
 };
 
 BENCHMARK_F(Distance, distance_array)
@@ -124,6 +136,13 @@ BENCHMARK_F(Distance, DistanceArrayMixed)
 (benchmark::State &state)
 {
     BM_DistanceArrayMixed(state);
+}
+
+
+BENCHMARK_F(Distance, DistanceArrayAgPreload)
+(benchmark::State &state)
+{
+    BM_DistanceArrayAgPreload(state);
 }
 
 BENCHMARK_MAIN();

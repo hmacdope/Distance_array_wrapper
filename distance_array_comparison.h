@@ -35,6 +35,7 @@ public:
     std::vector<float> coords;
     uint64_t i = 0;
     float *ptr;
+    std::vector<float> buffer;
 
     AGWrapper(uint64_t N, bool contig_idx = true) : N(N)
     {
@@ -68,6 +69,17 @@ public:
         i = 0;
         ptr = coords.data();
     }
+
+    void preload()
+    {
+        buffer.reserve(3 * N);
+        for (uint64_t i = 0; i < N; i++)
+        {
+            buffer.push_back(coords[3 * ix[i]]);
+            buffer.push_back(coords[3 * ix[i] + 1]);
+            buffer.push_back(coords[3 * ix[i] + 2]);
+        }
+    }
 };
 
 class FloatWrapper
@@ -92,7 +104,7 @@ public:
     float *next()
     {
         ptr += 3;
-        return ptr -3;
+        return ptr - 3;
     }
 
     void inline reset_iteration()
@@ -152,4 +164,13 @@ void DistanceArray(T ref, U conf, double *distances)
         }
         conf.reset_iteration();
     }
+}
+
+template <typename T, typename U>
+void DistanceArrayPreloadAG(T ref, U conf, double *distances)
+{
+
+    ref.preload();
+    conf.preload();
+    _calc_distance_array(ref.buffer.data(), ref.N, conf.buffer.data(), conf.N, distances);
 }
