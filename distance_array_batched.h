@@ -29,8 +29,14 @@ void DistanceArrayBatched(T ref, U conf, double *distances, uint64_t batchsize)
         printf("overhangs!!\n");
         ref.preload_external(ref_buffer, bsize_ref);
         conf.preload_external(conf_buffer, bsize_conf);
-        iter_ref += nref % bsize_ref;
-        iter_conf += nconf % bsize_conf;
+        int ref_overhang = nref % bsize_ref;
+        printf("ref overhang %i \n", ref_overhang);
+        int conf_overhang = nconf % bsize_conf;
+        printf("conf overhang %i \n", ref_overhang);
+        iter_ref += ref_overhang;
+        iter_conf += conf_overhang;
+        ref.rewind_external_buffer_iteration(bsize_ref - ref_overhang);
+        conf.rewind_external_buffer_iteration(bsize_conf - conf_overhang);
     }
 
     for (; iter_ref < nref; iter_ref += bsize_ref)

@@ -88,11 +88,17 @@ public:
         }
     }
 
-    void preload_external(float *buffer, uint64_t n_idx) // buffer passed in should be 3*buffer_size
+    void rewind_external_buffer_iteration(int offset){
+        i_preload -= offset;
+    }
+
+    void preload_external(float *buffer, uint64_t n_idx, int offset=0) // buffer passed in should be 3*buffer_size
     {
         printf("loading into external buffer with space for %i IDX\n", n_idx);
+        i_preload += offset; // allow pushing back indicies for overlap
         for (uint64_t i = 0; i < n_idx; i++)
         {
+            // if (i_preload < N) {
             buffer[3*i] = coords[3 * ix[i_preload]];
             printf(" %f", buffer[3*i]);
             buffer[3*i + 1] = coords[3 * ix[i_preload] + 1];
@@ -100,6 +106,11 @@ public:
             buffer[3*i + 2] = coords[3 * ix[i_preload] + 2];
             printf(" %f\n", buffer[3*i + 2]);
             i_preload += 1;
+            // }
+            // else {
+            //     printf("end of coordinates, breaking\n");
+            //     break;
+            // }
         }
     }
 };
