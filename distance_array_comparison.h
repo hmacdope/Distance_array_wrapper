@@ -1,3 +1,4 @@
+#pragma once
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
@@ -34,6 +35,7 @@ public:
     std::vector<uint64_t> ix;
     std::vector<float> coords;
     uint64_t i = 0;
+    uint64_t i_preload = 0;
     float *ptr;
     std::vector<float> buffer;
 
@@ -70,6 +72,11 @@ public:
         ptr = coords.data();
     }
 
+    void inline reset_external_buffer_iteration()
+    {
+        i_preload = 0;
+    }
+
     void preload()
     {
         buffer.reserve(3 * N);
@@ -78,6 +85,24 @@ public:
             buffer.push_back(coords[3 * ix[i]]);
             buffer.push_back(coords[3 * ix[i] + 1]);
             buffer.push_back(coords[3 * ix[i] + 2]);
+        }
+    }
+
+    void preload_external(float *buffer, int buffer_size)
+    {
+        printf("loading into external buffer\n");
+        for (uint64_t i = 0; i < buffer_size; i += 3)
+        {
+            printf(" i %i\n", i);
+            buffer[i] = coords[3 * ix[i_preload]];
+            printf(" %f", buffer[i]);
+            buffer[i + 1] = coords[3 * ix[i_preload] + 1];
+            printf(" %f", buffer[i + 1]);
+            buffer[i + 2] = coords[3 * ix[i_preload] + 2];
+            printf(" %f\n", buffer[i + 2]);
+
+            i_preload += 1;
+            printf(" i_preload %i\n", i_preload);
         }
     }
 };

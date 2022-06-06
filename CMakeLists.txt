@@ -12,7 +12,7 @@ add_compile_options(-O3)
 
 
 add_executable(d_array d_array.cc)
-
+add_executable(batched batched.cc)
 
 # Externally provided libraries
 FetchContent_Declare(googletest
