@@ -9,9 +9,9 @@ int main()
     constexpr bool debug = true;
     constexpr bool print_result = true;
 
-    constexpr int bufsize = 12;
+    constexpr int bufsize = 4; // IN ATOMS 
 
-    float buffer[bufsize];
+    float buffer[3* bufsize];
 
     float coords1[3 * N];
     float coords2[3 * N];

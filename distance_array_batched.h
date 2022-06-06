@@ -2,38 +2,49 @@
 #include "distance_array_comparison.h"
 #include <algorithm>
 
+
+
+
 template <typename T, typename U>
 void DistanceArrayBatched(T ref, U conf, double *distances, uint64_t batchsize)
 {
-    float ref_buffer[batchsize];
-    float conf_buffer[batchsize];
-    double result_buffer[batchsize];
+    printf("batched distance array\n");
+    const uint64_t atom_bufsize = 3 * batchsize;
+    float ref_buffer[atom_bufsize];
+    float conf_buffer[atom_bufsize];
+    double result_buffer[atom_bufsize];
 
     uint64_t nref = ref.N;
     uint64_t nconf = conf.N;
-    uint64_t bsize_ref = std::min(3 *nref, batchsize);
-    uint64_t bsize_conf = std::min(3* nconf, batchsize);
-    ref.preload_external(ref_buffer, bsize_ref); // make sure only fill up to number of vals
-    conf.preload_external(conf_buffer, bsize_conf);
+    uint64_t bsize_ref = std::min(nref, batchsize); // is  our batchsize larger than the number of coords?
+    uint64_t bsize_conf = std::min(nconf, batchsize);
 
-    uint64_t i, j, b;
-    double dx[3];
-    double rsq;
+    printf("blocksize ref %i blocksize conf %i\n\n", bsize_conf, bsize_ref);
 
-    // avoid dealing with coordinate in type signature
-    // this should be a reinterpret cast so cheap
-    // coordinate *conf_ = (coordinate *)conf_buffer;
-    // coordinate *ref_ = (coordinate *)ref_buffer;
+    uint64_t iter_ref = 0;
+    uint64_t iter_conf = 0;
 
-    // for (i = 0; i < niter_ref; i++)
-    // {
-    //     for (j = 0; j < niter_conf; j++)
-    //     {
-    //         dx[0] = conf_[j][0] - ref_[i][0];
-    //         dx[1] = conf_[j][1] - ref_[i][1];
-    //         dx[2] = conf_[j][2] - ref_[i][2];
-    //         rsq = (dx[0] * dx[0]) + (dx[1] * dx[1]) + (dx[2] * dx[2]);
-    //         *(distances + i * niter_conf + j) = sqrt(rsq);
-    //     }
-    // }
+    if (nref % bsize_ref | nconf % bsize_conf) // overhang in either dimension?
+    {
+        printf("overhangs!!\n");
+        ref.preload_external(ref_buffer, bsize_ref);
+        conf.preload_external(conf_buffer, bsize_conf);
+        iter_ref += nref % bsize_ref;
+        iter_conf += nconf % bsize_conf;
+    }
+
+    for (; iter_ref < nref; iter_ref += bsize_ref)
+    {
+        printf("ref preload \n");
+        ref.preload_external(ref_buffer, bsize_ref);
+
+        for (; iter_conf < nconf; iter_conf += bsize_conf)
+        {
+            printf("conf preload\n");
+            conf.preload_external(conf_buffer, bsize_conf);
+        }
+
+        conf.reset_external_buffer_iteration();
+        iter_conf = 0;
+    }
 }

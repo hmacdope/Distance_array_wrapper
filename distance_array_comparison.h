@@ -88,21 +88,18 @@ public:
         }
     }
 
-    void preload_external(float *buffer, int buffer_size)
+    void preload_external(float *buffer, uint64_t n_idx) // buffer passed in should be 3*buffer_size
     {
-        printf("loading into external buffer\n");
-        for (uint64_t i = 0; i < buffer_size; i += 3)
+        printf("loading into external buffer with space for %i IDX\n", n_idx);
+        for (uint64_t i = 0; i < n_idx; i++)
         {
-            printf(" i %i\n", i);
-            buffer[i] = coords[3 * ix[i_preload]];
-            printf(" %f", buffer[i]);
-            buffer[i + 1] = coords[3 * ix[i_preload] + 1];
-            printf(" %f", buffer[i + 1]);
-            buffer[i + 2] = coords[3 * ix[i_preload] + 2];
-            printf(" %f\n", buffer[i + 2]);
-
+            buffer[3*i] = coords[3 * ix[i_preload]];
+            printf(" %f", buffer[3*i]);
+            buffer[3*i + 1] = coords[3 * ix[i_preload] + 1];
+            printf(" %f", buffer[3*i + 1]);
+            buffer[3*i + 2] = coords[3 * ix[i_preload] + 2];
+            printf(" %f\n", buffer[3*i + 2]);
             i_preload += 1;
-            printf(" i_preload %i\n", i_preload);
         }
     }
 };
