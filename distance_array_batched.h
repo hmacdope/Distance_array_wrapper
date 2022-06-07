@@ -8,6 +8,7 @@
 template <typename T, typename U>
 void DistanceArrayBatched(T ref, U conf, double *distances, uint64_t batchsize)
 {
+    // blocked algorithm with a tile repeat for modular overhang
     printf("batched distance array\n");
     const uint64_t atom_bufsize = 3 * batchsize;
     float ref_buffer[atom_bufsize];
@@ -23,19 +24,24 @@ void DistanceArrayBatched(T ref, U conf, double *distances, uint64_t batchsize)
 
     uint64_t iter_ref = 0;
     uint64_t iter_conf = 0;
+    float dx[3];
+    int ref_overhang = nref % bsize_ref;
+    int conf_overhang = nconf % bsize_conf;
 
     if (nref % bsize_ref | nconf % bsize_conf) // overhang in either dimension?
     {
         printf("overhangs!!\n");
         ref.preload_external(ref_buffer, bsize_ref);
         conf.preload_external(conf_buffer, bsize_conf);
-        int ref_overhang = nref % bsize_ref;
         printf("ref overhang %i \n", ref_overhang);
-        int conf_overhang = nconf % bsize_conf;
         printf("conf overhang %i \n", ref_overhang);
+    
+        _calc_distance_array(ref_buffer, bsize_ref, conf_buffer, bsize_conf, distances);
+
         iter_ref += ref_overhang;
         iter_conf += conf_overhang;
-        ref.rewind_external_buffer_iteration(bsize_ref - ref_overhang);
+        distances +=  ref_overhang*conf_overhang;
+        ref.rewind_external_buffer_iteration(bsize_ref - ref_overhang); // rewind so we don't read off edge of array
         conf.rewind_external_buffer_iteration(bsize_conf - conf_overhang);
     }
 
@@ -48,9 +54,14 @@ void DistanceArrayBatched(T ref, U conf, double *distances, uint64_t batchsize)
         {
             printf("conf preload\n");
             conf.preload_external(conf_buffer, bsize_conf);
+            _calc_distance_array(ref_buffer, bsize_ref, conf_buffer, bsize_conf, distances);
+            distances += bsize_conf*bsize_ref;
+        
         }
 
+
         conf.reset_external_buffer_iteration();
+        conf.push_external_buffer_iteration(conf_overhang);    
         iter_conf = 0;
     }
 }

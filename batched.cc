@@ -5,11 +5,11 @@ int main()
 {
 
     // setup
-    constexpr uint64_t N = 11;
+    constexpr uint64_t N = 10;
     constexpr bool debug = true;
     constexpr bool print_result = true;
 
-    constexpr int bufsize = 9; // IN ATOMS 
+    constexpr int bufsize = 3; // IN ATOMS 
 
     float buffer[3* bufsize];
 
@@ -54,6 +54,6 @@ int main()
     DistanceArrayBatched(ag_mock1, ag_mock2, result, bufsize);
     if (print_result)
     {
-        print_square_mat(result, N, "raw mda");
+        print_square_mat(result, N, "batched");
     }
 }
