@@ -5,7 +5,7 @@ int main()
 {
 
     // setup
-    constexpr uint64_t N = 10;
+    constexpr uint64_t N = 9;
     constexpr bool debug = true;
     constexpr bool print_result = true;
 

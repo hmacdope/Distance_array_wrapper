@@ -28,40 +28,28 @@ void DistanceArrayBatched(T ref, U conf, double *distances, uint64_t batchsize)
     int ref_overhang = nref % bsize_ref;
     int conf_overhang = nconf % bsize_conf;
 
-    if (nref % bsize_ref | nconf % bsize_conf) // overhang in either dimension?
-    {
-        printf("overhangs!!\n");
-        ref.preload_external(ref_buffer, bsize_ref);
-        conf.preload_external(conf_buffer, bsize_conf);
-        printf("ref overhang %i \n", ref_overhang);
-        printf("conf overhang %i \n", ref_overhang);
-    
-        _calc_distance_array(ref_buffer, bsize_ref, conf_buffer, bsize_conf, distances);
+    // if (ref_overhang | conf_overhang) // overhang in either dimension?
+    // {
+    //     iter_ref -= ref_overhang
+    //     iter_conf -= 
+    // }
 
-        iter_ref += ref_overhang;
-        iter_conf += conf_overhang;
-        distances +=  ref_overhang*conf_overhang;
-        ref.rewind_external_buffer_iteration(bsize_ref - ref_overhang); // rewind so we don't read off edge of array
-        conf.rewind_external_buffer_iteration(bsize_conf - conf_overhang);
-    }
-
-    for (; iter_ref < nref; iter_ref += bsize_ref)
+    for (; iter_ref < nref - ref_overhang; iter_ref += bsize_ref)
     {
         printf("ref preload \n");
         ref.preload_external(ref_buffer, bsize_ref);
 
-        for (; iter_conf < nconf; iter_conf += bsize_conf)
+        for (; iter_conf < nconf - conf_overhang; iter_conf += bsize_conf)
         {
             printf("conf preload\n");
             conf.preload_external(conf_buffer, bsize_conf);
-            _calc_distance_array(ref_buffer, bsize_ref, conf_buffer, bsize_conf, distances);
-            distances += bsize_conf*bsize_ref;
-        
+            _calc_distance_array(ref_buffer, bsize_ref, conf_buffer, bsize_conf, result_buffer);
+            distances += nconf - bsize_conf +conf_overhang;
+            print_square_mat(result_buffer, bsize_ref, "batched");
         }
 
 
         conf.reset_external_buffer_iteration();
-        conf.push_external_buffer_iteration(conf_overhang);    
         iter_conf = 0;
     }
 }
