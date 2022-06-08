@@ -2,9 +2,6 @@
 #include "distance_array_comparison.h"
 #include <algorithm>
 
-
-
-
 template <typename T, typename U>
 void DistanceArrayBatched(T ref, U conf, double *distances, uint64_t batchsize)
 {
@@ -24,15 +21,12 @@ void DistanceArrayBatched(T ref, U conf, double *distances, uint64_t batchsize)
 
     uint64_t iter_ref = 0;
     uint64_t iter_conf = 0;
+    uint64_t i, j;
+    double rsq;
     float dx[3];
     int ref_overhang = nref % bsize_ref;
     int conf_overhang = nconf % bsize_conf;
 
-    // if (ref_overhang | conf_overhang) // overhang in either dimension?
-    // {
-    //     iter_ref -= ref_overhang
-    //     iter_conf -= 
-    // }
 
     for (; iter_ref < nref - ref_overhang; iter_ref += bsize_ref)
     {
@@ -43,11 +37,24 @@ void DistanceArrayBatched(T ref, U conf, double *distances, uint64_t batchsize)
         {
             printf("conf preload\n");
             conf.preload_external(conf_buffer, bsize_conf);
-            _calc_distance_array(ref_buffer, bsize_ref, conf_buffer, bsize_conf, result_buffer);
-            distances += nconf - bsize_conf +conf_overhang;
-            print_square_mat(result_buffer, bsize_ref, "batched");
-        }
 
+            // avoid dealing with coordinate in type signature
+            // this should be a reinterpret cast so cheap
+            coordinate *conf_ = (coordinate *)conf_buffer;
+            coordinate *ref_ = (coordinate *)ref_buffer;
+
+            for (i = 0; i < bsize_ref; i++)
+            {
+                for (j = 0; j < bsize_conf; j++)
+                {
+                    dx[0] = conf_[j][0] - ref_[i][0];
+                    dx[1] = conf_[j][1] - ref_[i][1];
+                    dx[2] = conf_[j][2] - ref_[i][2];
+                    rsq = (dx[0] * dx[0]) + (dx[1] * dx[1]) + (dx[2] * dx[2]);
+                    *(distances + i * nconf + j) = sqrt(rsq);
+                }
+            }
+        }
 
         conf.reset_external_buffer_iteration();
         iter_conf = 0;
