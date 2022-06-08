@@ -6,7 +6,7 @@ template <typename T, typename U>
 void DistanceArrayBatched(T ref, U conf, double *distances, uint64_t batchsize)
 {
     // blocked algorithm with a tile repeat for modular overhang
-    printf("batched distance array\n");
+    // printf("batched distance array\n");
     const uint64_t atom_bufsize = 3 * batchsize;
     float ref_buffer[atom_bufsize];
     float conf_buffer[atom_bufsize];
@@ -17,7 +17,7 @@ void DistanceArrayBatched(T ref, U conf, double *distances, uint64_t batchsize)
     uint64_t bsize_ref = std::min(nref, batchsize); // is  our batchsize larger than the number of coords?
     uint64_t bsize_conf = std::min(nconf, batchsize);
 
-    printf("blocksize ref %i blocksize conf %i\n\n", bsize_conf, bsize_ref);
+    // printf("blocksize ref %i blocksize conf %i\n\n", bsize_conf, bsize_ref);
 
     uint64_t iter_ref = 0;
     uint64_t iter_conf = 0;
@@ -30,12 +30,12 @@ void DistanceArrayBatched(T ref, U conf, double *distances, uint64_t batchsize)
 
     for (; iter_ref < nref - ref_overhang; iter_ref += bsize_ref)
     {
-        printf("ref preload \n");
+        // printf("ref preload \n");
         ref.preload_external(ref_buffer, bsize_ref);
 
         for (; iter_conf < nconf - conf_overhang; iter_conf += bsize_conf)
         {
-            printf("conf preload\n");
+            // printf("conf preload\n");
             conf.preload_external(conf_buffer, bsize_conf);
 
             // avoid dealing with coordinate in type signature

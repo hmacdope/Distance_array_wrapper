@@ -1,5 +1,6 @@
 #include <benchmark/benchmark.h>
 #include "distance_array_comparison.h"
+#include "distance_array_batched.h"
 
 class Distance : public benchmark::Fixture
 {
@@ -118,6 +119,18 @@ public:
             N * state.iterations(),
             benchmark::Counter::kIsRate | benchmark::Counter::kInvert);
     }
+
+    void BM_DistanceArrayAgExternalPreload(benchmark::State &state)
+    {
+        for (auto _ : state)
+        {
+            DistanceArrayBatched(ag_mock1, ag_mock2, result, 100);
+        }
+        state.SetItemsProcessed(N * N * state.iterations());
+        state.counters["Per Result"] = benchmark::Counter(
+            N * state.iterations(),
+            benchmark::Counter::kIsRate | benchmark::Counter::kInvert);
+    }
 };
 
 BENCHMARK_F(Distance, distance_array)
@@ -150,7 +163,6 @@ BENCHMARK_F(Distance, DistanceArrayMixed)
     BM_DistanceArrayMixed(state);
 }
 
-
 BENCHMARK_F(Distance, DistanceArrayAgPreload)
 (benchmark::State &state)
 {
@@ -161,6 +173,13 @@ BENCHMARK_F(Distance, AgPreload)
 (benchmark::State &state)
 {
     BM_AgPreload(state);
+}
+
+
+BENCHMARK_F(Distance, DistanceArrayAgExternalPreload)
+(benchmark::State &state)
+{
+    BM_DistanceArrayAgExternalPreload(state);
 }
 
 BENCHMARK_MAIN();
