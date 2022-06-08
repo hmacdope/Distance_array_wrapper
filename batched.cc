@@ -5,7 +5,7 @@ int main()
 {
 
     // setup
-    constexpr uint64_t N = 9;
+    constexpr uint64_t N = 6;
     constexpr bool debug = true;
     constexpr bool print_result = true;
 
@@ -17,6 +17,8 @@ int main()
     float coords2[3 * N];
 
     double result[N * N] = {0};
+    double result2[N * N] = {0};
+
 
     // classes that mock atomgroup
     auto ag_mock1 = AGWrapper(N);
@@ -51,9 +53,9 @@ int main()
         print_square_mat(result, N, "raw mda");
     }
 
-    DistanceArrayBatched(ag_mock1, ag_mock2, result, bufsize);
+    DistanceArrayBatched(ag_mock1, ag_mock2, result2, bufsize);
     if (print_result)
     {
-        print_square_mat(result, N, "batched");
+        print_square_mat(result2, N, "batched");
     }
 }
