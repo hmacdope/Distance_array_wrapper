@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 
 
-add_compile_options(-O3)
+add_compile_options(-O3 -mtune=native -march=native)
 
 
 add_executable(d_array d_array.cc)

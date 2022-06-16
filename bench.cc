@@ -124,7 +124,7 @@ public:
     {
         for (auto _ : state)
         {
-            DistanceArrayBatched(ag_mock1, ag_mock2, result, 100);
+            DistanceArrayBatched(ag_mock1, ag_mock2, result, 64);
         }
         state.SetItemsProcessed(N * N * state.iterations());
         state.counters["Per Result"] = benchmark::Counter(
