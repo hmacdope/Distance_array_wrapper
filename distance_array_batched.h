@@ -47,14 +47,14 @@ void DistanceArrayBatched(T ref, U conf, double *distances, uint64_t batchsize)
                     dx[2] = conf_buffer[3 * j + 2] - ref_buffer[3 * i + 2];
                     rsq = (dx[0] * dx[0]) + (dx[1] * dx[1]) + (dx[2] * dx[2]);
                     *(distances + iter_ref * nconf + iter_conf + i * nconf + j) = sqrt(rsq);
-                    printf("mem loc %ld ", iter_ref * nconf + iter_conf + i * nconf + j);
+                    // printf("mem loc %ld ", iter_ref * nconf + iter_conf + i * nconf + j);
                 }
             }
         }
 
         conf.reset_external_buffer_iteration();
     }
-    printf("\n\n OVERHANG TIME\n");
+    // printf("\n\n OVERHANG TIME\n");
     // now deal with overhang
     uint64_t gcd_conf = std::gcd(nconf, bsize_conf);
     uint64_t gcd_ref = std::gcd(nref, bsize_ref);
@@ -63,7 +63,7 @@ void DistanceArrayBatched(T ref, U conf, double *distances, uint64_t batchsize)
     printf("gcd conf %ld\n", gcd_conf);
     printf("gcd conf %ld\n", gcd_ref);
 
-    printf("REF OVERHANG\n");
+    // printf("REF OVERHANG\n");
     ref.preload_external(ref_buffer, ref_overhang);
 
     for (int i = 0; i < nconf; i += gcd_conf)
@@ -80,11 +80,11 @@ void DistanceArrayBatched(T ref, U conf, double *distances, uint64_t batchsize)
                 rsq = (dx[0] * dx[0]) + (dx[1] * dx[1]) + (dx[2] * dx[2]);
                 // printf("dist %f\n", sqrt(rsq));
                 *(distances + iter_ref * nconf + i + ii * nconf + jj) = sqrt(rsq);
-                printf("mem loc %ld \n", iter_ref * nconf + i + ii * nconf + jj);
+                // printf("mem loc %ld \n", iter_ref * nconf + i + ii * nconf + jj);
             }
         }
     }
-    printf("CONF OVERHANG\n");
+    // printf("CONF OVERHANG\n");
     conf.reset_external_buffer_iteration();
     ref.reset_external_buffer_iteration();
     conf.seek(nconf - conf_overhang);
@@ -103,8 +103,8 @@ void DistanceArrayBatched(T ref, U conf, double *distances, uint64_t batchsize)
                 dx[2] = conf_buffer[3 * jj + 2] - ref_buffer[3 * ii + 2];
                 rsq = (dx[0] * dx[0]) + (dx[1] * dx[1]) + (dx[2] * dx[2]);
                 printf("dist %f\n", sqrt(rsq));
-                // *(distances + iter_ref * nconf + i + ii * nconf + jj) = sqrt(rsq);
-                printf("mem loc %ld \n", iter_conf * nref +  jj * nref + ii);
+                *(distances + iter_conf +  j*nref + jj ) = sqrt(rsq);
+                printf("mem loc %ld \n", iter_conf + j*nref + jj );
             }
         }
     }

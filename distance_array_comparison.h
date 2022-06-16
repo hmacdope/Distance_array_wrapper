@@ -103,16 +103,16 @@ public:
 
     void preload_external(float *buffer, uint64_t n_idx, int offset=0) // buffer passed in should be 3*buffer_size
     {
-        printf("loading into external buffer with space for %i IDX\n", n_idx);
+        // printf("loading into external buffer with space for %i IDX\n", n_idx);
         i_preload += offset; // allow pushing back indicies for overlap
         for (uint64_t i = 0; i < n_idx; i++)
         {
             buffer[3*i] = coords[3 * ix[i_preload]];
-            printf(" %f", buffer[3*i]);
+            // printf(" %f", buffer[3*i]);
             buffer[3*i + 1] = coords[3 * ix[i_preload] + 1];
-            printf(" %f", buffer[3*i + 1]);
+            // printf(" %f", buffer[3*i + 1]);
             buffer[3*i + 2] = coords[3 * ix[i_preload] + 2];
-            printf(" %f\n", buffer[3*i + 2]);
+            // printf(" %f\n", buffer[3*i + 2]);
             i_preload += 1;
         }
     }
