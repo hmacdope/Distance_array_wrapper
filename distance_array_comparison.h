@@ -96,8 +96,8 @@ public:
         i_preload += offset;
     }
 
-    void seek(int i) {
-        i = i;
+    void seek(int i_) {
+        i_preload = i_;
 
     }
 
