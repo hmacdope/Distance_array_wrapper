@@ -5,11 +5,11 @@ int main()
 {
 
     // setup
-    constexpr uint64_t N = 11;
+    constexpr uint64_t N = 18;
     constexpr bool debug = true;
     constexpr bool print_result = true;
 
-    constexpr int bufsize = 3; // IN ATOMS 
+    constexpr int bufsize = 4; // IN ATOMS 
 
     float buffer[3* bufsize];
 
