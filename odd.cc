@@ -5,31 +5,36 @@ int main()
 {
 
     // setup
-    constexpr uint64_t N = 16;
+    constexpr uint64_t N = 9;
+    constexpr uint64_t M = 17;
     constexpr bool debug = true;
     constexpr bool print_result = true;
 
-    constexpr int bufsize = 20; // IN ATOMS 
+    constexpr int bufsize = 2; // IN ATOMS 
 
     float buffer[3* bufsize];
 
     float coords1[3 * N];
-    float coords2[3 * N];
+    float coords2[3 * M];
 
-    double result[N * N] = {0};
-    double result2[N * N] = {0};
+    double result[N * M] = {0};
+    double result2[N * M] = {0};
 
 
     // classes that mock atomgroup
     auto ag_mock1 = AGWrapper(N);
-    auto ag_mock2 = AGWrapper(N);
+    auto ag_mock2 = AGWrapper(M);
 
     auto float_mock1 = FloatWrapper(N);
-    auto float_mock2 = FloatWrapper(N);
+    auto float_mock2 = FloatWrapper(M);
 
     for (uint64_t i = 0; i < 3 * N; i++)
     {
         coords1[i] = static_cast<float>(i);
+    }
+
+    for (uint64_t i = 0; i < 3 * M; i++)
+    {
         coords2[i] = static_cast<float>(i);
     }
 
@@ -47,15 +52,15 @@ int main()
     }
 
     // raw MDA style
-    _calc_distance_array(coords1, N, coords2, N, result);
+    _calc_distance_array(coords1, N, coords2, M, result);
     if (print_result)
     {
-        print_square_mat(result, N, "raw mda");
+        print_rect_mat(result, N, M, "raw mda");
     }
 
     DistanceArrayBatched(ag_mock1, ag_mock2, result2, bufsize);
     if (print_result)
     {
-        print_square_mat(result2, N, "batched");
+        print_rect_mat(result2, N, M,  "batched");
     }
 }

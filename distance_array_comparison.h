@@ -27,6 +27,21 @@ void print_square_mat(T *buffer, uint64_t buf_len, std::string tag)
     printf("\n");
 }
 
+template <typename T>
+void print_rect_mat(T *buffer, uint64_t N,  uint64_t M,  std::string tag)
+{
+    printf(" %s \n", tag.c_str());
+    for (uint64_t i = 0; i < N; i++)
+    {
+        for (uint64_t j = 0; j < M; j++)
+        {
+            printf(" %f ", buffer[N * i + j]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
+
 // mocks AtomGroup
 class AGWrapper
 {

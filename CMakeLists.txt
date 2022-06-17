@@ -13,6 +13,9 @@ add_compile_options(-O3 -mtune=native -march=native)
 
 add_executable(d_array d_array.cc)
 add_executable(batched batched.cc)
+add_executable(odd odd.cc)
+add_executable(random random_inputs.cc)
+
 
 # Externally provided libraries
 FetchContent_Declare(googletest
