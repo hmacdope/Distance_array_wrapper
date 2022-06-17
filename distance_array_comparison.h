@@ -35,7 +35,8 @@ void print_rect_mat(T *buffer, uint64_t N,  uint64_t M,  std::string tag)
     {
         for (uint64_t j = 0; j < M; j++)
         {
-            printf(" %f ", buffer[N * i + j]);
+            printf(" %f ", buffer[M * i + j]);
+            printf(" %ld", M*i +j);
         }
         printf("\n");
     }
