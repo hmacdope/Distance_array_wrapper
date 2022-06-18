@@ -1,15 +1,15 @@
 #include "distance_array_comparison.h"
-#include "distance_array_batched.h"
+#include "batched_v2.h"
 
 int main()
 {
 
     // setup
-    constexpr uint64_t N = 16;
+    constexpr uint64_t N = 11;
     constexpr bool debug = true;
     constexpr bool print_result = true;
 
-    constexpr int bufsize = 20; // IN ATOMS 
+    constexpr int bufsize = 6; // IN ATOMS 
 
     float buffer[3* bufsize];
 
