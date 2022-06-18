@@ -1,15 +1,15 @@
 #include <random>
-
+#include <gtest/gtest.h>
 #include "distance_array_comparison.h"
-#include "distance_array_batched.h"
+#include "batched_v2.h"
 
 int main()
 {
-    const bool print_result=true;
-    constexpr int N_test = 10;
+    const bool print_result=false;
+    constexpr int N_test = 1000;
     std::random_device dev;
     std::mt19937 rng(dev());
-    std::uniform_int_distribution<uint64_t> dist(1, 10); // distribution in range [1, 6]
+    std::uniform_int_distribution<uint64_t> dist(1, 100); // distribution in range [1, 6]
 
     for (int i = 0; i < N_test; i++)
     {
@@ -17,6 +17,8 @@ int main()
         uint64_t N = dist(rng);
         uint64_t M = dist(rng);
         int batchsize = dist(rng);
+
+        printf("N  %ld M %ld batchsize %i  \n", N, M, batchsize);
 
         float coords1[3 * N];
         float coords2[3 * M];
@@ -52,6 +54,10 @@ int main()
         if (print_result)
         {
             print_rect_mat(result2, N, M, "batched");
+        }
+
+        for(int i=0; i<M*N; i++) {
+            EXPECT_FLOAT_EQ(result1[i], result2[i]);
         }
     }
 }

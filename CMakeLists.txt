@@ -32,3 +32,8 @@ FetchContent_MakeAvailable(
 
 add_executable(bench bench.cc)
 target_link_libraries(bench benchmark::benchmark)
+target_link_libraries(random    gtest_main)
+target_link_libraries(odd    gtest_main)
+
+
+

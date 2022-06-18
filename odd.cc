@@ -1,25 +1,25 @@
 #include "distance_array_comparison.h"
 #include "batched_v2.h"
+#include <gtest/gtest.h>
 
 int main()
 {
 
     // setup
-    constexpr uint64_t N = 11;
-    constexpr uint64_t M = 8;
+    constexpr uint64_t N = 8;
+    constexpr uint64_t M = 10;
     constexpr bool debug = true;
     constexpr bool print_result = true;
 
-    constexpr int bufsize = 11; // IN ATOMS 
+    constexpr int bufsize = 6; // IN ATOMS
 
-    float buffer[3* bufsize];
+    float buffer[3 * bufsize];
 
     float coords1[3 * N];
     float coords2[3 * M];
 
     double result[N * M] = {0};
     double result2[N * M] = {0};
-
 
     // classes that mock atomgroup
     auto ag_mock1 = AGWrapper(N);
@@ -48,7 +48,6 @@ int main()
         // ag_mock1.preload_external(buffer, bufsize);
         // for (uint64_t i = 0; i < bufsize; i++)
         //     printf(" %f \n", buffer[i]);
-
     }
 
     // raw MDA style
@@ -61,6 +60,11 @@ int main()
     DistanceArrayBatched(ag_mock1, ag_mock2, result2, bufsize);
     if (print_result)
     {
-        print_rect_mat(result2, N, M,  "batched");
+        print_rect_mat(result2, N, M, "batched");
+    }
+
+    for (int i = 0; i < M * N; i++)
+    {
+        EXPECT_FLOAT_EQ(result[i], result2[i]);
     }
 }
