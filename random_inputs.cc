@@ -1,7 +1,7 @@
 #include <random>
 #include <gtest/gtest.h>
 #include "distance_array_comparison.h"
-#include "batched_v2.h"
+#include "distance_array_batched.h"
 
 int main()
 {
@@ -9,7 +9,7 @@ int main()
     constexpr int N_test = 1000;
     std::random_device dev;
     std::mt19937 rng(dev());
-    std::uniform_int_distribution<uint64_t> dist(1, 100); // distribution in range [1, 6]
+    std::uniform_int_distribution<uint64_t> dist(1, 10); // distribution in range [1, 6]
 
     for (int i = 0; i < N_test; i++)
     {

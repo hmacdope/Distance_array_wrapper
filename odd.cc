@@ -1,17 +1,17 @@
 #include "distance_array_comparison.h"
-#include "batched_v2.h"
+#include "distance_array_batched.h"
 #include <gtest/gtest.h>
 
 int main()
 {
 
     // setup
-    constexpr uint64_t N = 8;
-    constexpr uint64_t M = 10;
+    constexpr uint64_t N = 5;
+    constexpr uint64_t M = 6;
     constexpr bool debug = true;
     constexpr bool print_result = true;
 
-    constexpr int bufsize = 6; // IN ATOMS
+    constexpr int bufsize = 4; // IN ATOMS
 
     float buffer[3 * bufsize];
 
