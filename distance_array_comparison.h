@@ -122,6 +122,7 @@ public:
         // printf("loading into external buffer with space for %i IDX\n", n_idx);
         for (uint64_t i = 0; i < n_idx; i++)
         {
+            // printf("i_preload %ld\n", i_preload);
             buffer[3*i] = coords[3 * ix[i_preload]];
             // printf(" %f", buffer[3*i]);
             buffer[3*i + 1] = coords[3 * ix[i_preload] + 1];
