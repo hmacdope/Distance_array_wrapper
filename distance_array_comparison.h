@@ -28,7 +28,7 @@ void print_square_mat(T *buffer, uint64_t buf_len, std::string tag)
 }
 
 template <typename T>
-void print_rect_mat(T *buffer, uint64_t N,  uint64_t M,  std::string tag)
+void print_rect_mat(T *buffer, uint64_t N, uint64_t M, std::string tag)
 {
     printf(" %s \n", tag.c_str());
     for (uint64_t i = 0; i < N; i++)
@@ -36,7 +36,7 @@ void print_rect_mat(T *buffer, uint64_t N,  uint64_t M,  std::string tag)
         for (uint64_t j = 0; j < M; j++)
         {
             printf(" %f ", buffer[M * i + j]);
-            printf(" %ld", M*i +j);
+            printf(" %ld", M * i + j);
         }
         printf("\n");
     }
@@ -104,17 +104,19 @@ public:
         }
     }
 
-    void rewind_external_buffer_iteration(int offset){
+    void rewind_external_buffer_iteration(int offset)
+    {
         i_preload -= offset;
     }
 
-    void push_external_buffer_iteration(int offset){
+    void push_external_buffer_iteration(int offset)
+    {
         i_preload += offset;
     }
 
-    void seek(int i_) {
+    void seek(int i_)
+    {
         i_preload = i_;
-
     }
 
     void preload_external(float *buffer, uint64_t n_idx) // buffer passed in should be 3*buffer_size
@@ -123,11 +125,11 @@ public:
         for (uint64_t i = 0; i < n_idx; i++)
         {
             // printf("i_preload %ld\n", i_preload);
-            buffer[3*i] = coords[3 * ix[i_preload]];
+            buffer[3 * i] = coords[3 * ix[i_preload]];
             // printf(" %f", buffer[3*i]);
-            buffer[3*i + 1] = coords[3 * ix[i_preload] + 1];
+            buffer[3 * i + 1] = coords[3 * ix[i_preload] + 1];
             // printf(" %f", buffer[3*i + 1]);
-            buffer[3*i + 2] = coords[3 * ix[i_preload] + 2];
+            buffer[3 * i + 2] = coords[3 * ix[i_preload] + 2];
             // printf(" %f\n", buffer[3*i + 2]);
             i_preload += 1;
         }
@@ -136,18 +138,19 @@ public:
     void preload_external(float *buffer, uint64_t n_idx, int load_pos) // buffer passed in should be 3*buffer_size
 
     {
-        if ((n_idx + load_pos) > N) {
-            n_idx = N-load_pos;
-        }    
+        if ((n_idx + load_pos) > N)
+        {
+            n_idx = N - load_pos;
+        }
 
         // printf("loading into external buffer with space for %i IDX\n", n_idx);
         for (uint64_t i = 0; i < n_idx; i++)
         {
-            buffer[3*i] = coords[3 * ix[load_pos + i]];
+            buffer[3 * i] = coords[3 * ix[load_pos + i]];
             // printf(" %f", buffer[3*i]);
-            buffer[3*i + 1] = coords[3 * ix[load_pos + i] + 1];
+            buffer[3 * i + 1] = coords[3 * ix[load_pos + i] + 1];
             // printf(" %f", buffer[3*i + 1]);
-            buffer[3*i + 2] = coords[3 * ix[load_pos + i] + 2];
+            buffer[3 * i + 2] = coords[3 * ix[load_pos + i] + 2];
             // printf(" %f\n", buffer[3*i + 2]);
         }
     }
@@ -178,9 +181,36 @@ public:
         return ptr - 3;
     }
 
+    void inline reset_external_buffer_iteration()
+    {
+        i = 0;
+    }
+
     void inline reset_iteration()
     {
-        ptr = coords.data();
+        i = 0;
+    }
+
+    void seek(int i_)
+    {
+        i = i_;
+    }
+
+    void preload_external(float *&buffer, uint64_t n_idx)
+    {
+        // printf("loading into external buffer with space for %i IDX\n", n_idx);
+
+
+        buffer = ptr + i * 3;
+        // for (int n = 0; n < n_idx; n++)
+        // {
+        //     printf(" %f\n", buffer[3 * n ]);
+
+        //     printf(" %f\n", buffer[3 * n + 1]);
+
+        //     printf(" %f\n", buffer[3 * n + 2]);
+        // }
+        i += n_idx;
     }
 };
 

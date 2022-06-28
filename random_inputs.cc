@@ -50,7 +50,7 @@ int main()
             print_rect_mat(result1, N, M, "raw mda");
         }
 
-        DistanceArrayBatched(ag_mock1, ag_mock2, result2, batchsize);
+        DistanceArrayBatched(float_mock1, float_mock2, result2, batchsize);
         if (print_result)
         {
             print_rect_mat(result2, N, M, "batched");

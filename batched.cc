@@ -1,5 +1,5 @@
 #include "distance_array_comparison.h"
-#include "batched_v2.h"
+#include "distance_array_batched.h"
 
 int main()
 {
@@ -53,7 +53,7 @@ int main()
         print_square_mat(result, N, "raw mda");
     }
 
-    DistanceArrayBatched(ag_mock1, ag_mock2, result2, bufsize);
+    DistanceArrayBatched(float_mock1, float_mock2, result2, bufsize);
     if (print_result)
     {
         print_square_mat(result2, N, "batched");

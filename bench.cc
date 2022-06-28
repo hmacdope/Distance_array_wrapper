@@ -72,17 +72,17 @@ public:
             benchmark::Counter::kIsRate | benchmark::Counter::kInvert);
     }
 
-    void BM_DistanceArrayFloatWrap(benchmark::State &state)
-    {
-        for (auto _ : state)
-        {
-            DistanceArray(float_mock1, float_mock2, result);
-        }
-        state.SetItemsProcessed(N * N * state.iterations());
-        state.counters["Per Result"] = benchmark::Counter(
-            N * state.iterations(),
-            benchmark::Counter::kIsRate | benchmark::Counter::kInvert);
-    }
+    // void BM_DistanceArrayFloatWrap(benchmark::State &state)
+    // {
+    //     for (auto _ : state)
+    //     {
+    //         DistanceArray(float_mock1, float_mock2, result);
+    //     }
+    //     state.SetItemsProcessed(N * N * state.iterations());
+    //     state.counters["Per Result"] = benchmark::Counter(
+    //         N * state.iterations(),
+    //         benchmark::Counter::kIsRate | benchmark::Counter::kInvert);
+    // }
 
     void BM_DistanceArrayMixed(benchmark::State &state)
     {
@@ -151,11 +151,11 @@ BENCHMARK_F(Distance, DistanceArrayAgNonContig)
     BM_DistanceArrayAgNonContig(state);
 }
 
-BENCHMARK_F(Distance, DistanceArrayFloatWrap)
-(benchmark::State &state)
-{
-    BM_DistanceArrayFloatWrap(state);
-}
+// BENCHMARK_F(Distance, DistanceArrayFloatWrap)
+// (benchmark::State &state)
+// {
+//     BM_DistanceArrayFloatWrap(state);
+// }
 
 BENCHMARK_F(Distance, DistanceArrayMixed)
 (benchmark::State &state)
